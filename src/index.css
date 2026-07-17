@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dark {
+  @apply bg-Dark-Blue-2 text-white;
+}
+
+.light {
+  @apply bg-Light-Gray text-Dark-Blue-1;
+}
+
+.element-dark {
+  @apply bg-Dark-Blue-3 text-white;
+}
+
+.element-light {
+  @apply bg-white text-Dark-Blue-1;
+}
