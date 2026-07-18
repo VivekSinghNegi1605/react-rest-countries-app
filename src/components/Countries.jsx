@@ -34,7 +34,6 @@ const Countries = () => {
         },
       });
       const jsonData = await response.json();
-      console.log(jsonData.data.objects);
       setData(jsonData.data.objects);
     } catch (error) {
       console.log(error.message);

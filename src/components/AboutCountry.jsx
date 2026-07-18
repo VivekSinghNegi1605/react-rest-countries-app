@@ -38,8 +38,6 @@ function AboutCountry() {
         );
       }
 
-      console.log(data.data.objects);
-
       setCountryData(data.data.objects);
     } catch (error) {
       console.error("Country fetch error:", error);
