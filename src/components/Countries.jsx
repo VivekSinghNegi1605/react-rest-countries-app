@@ -10,24 +10,32 @@ import { ThemeContext } from "./Context.jsx";
 import CardsContainer from "./CardsContainer.jsx";
 import SearchFilterContainer from "./SearchFilterContainer.jsx";
 
+const TOKEN = import.meta.env.VITE_APP_TOKEN;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+
 const Countries = () => {
   const { theme } = useContext(ThemeContext);
   const [searchValue, setSearchValue] = UseLocalStorage("searchValue", "");
   const [selectedRegion, setSelectedRegion] = UseLocalStorage(
     "selectedRegion",
-    ""
+    "",
   );
   const [data, setData] = useState([]);
   const [countriesData, setCountriesData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  async function fetchCountries(url) {
+  async function fetchCountries() {
     try {
       setLoading(true);
-      const response = await fetch(url);
+      const response = await fetch(`${BASE_URL}?limit=100`, {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+        },
+      });
       const jsonData = await response.json();
-      setData(jsonData);
+      console.log(jsonData.data.objects);
+      setData(jsonData.data.objects);
     } catch (error) {
       console.log(error.message);
       setErrorMsg(error.message);
@@ -37,7 +45,7 @@ const Countries = () => {
   }
 
   useEffect(() => {
-    fetchCountries("https://restcountries.com/v3.1/all");
+    fetchCountries();
   }, []);
 
   useEffect(() => {
@@ -49,8 +57,8 @@ const Countries = () => {
         });
       }
       if (searchValue) {
-        newCountryData = newCountryData.filter(({ name }) => {
-          return name.common.toLowerCase().includes(searchValue);
+        newCountryData = newCountryData.filter(({ names }) => {
+          return names.common.toLowerCase().includes(searchValue.toLowerCase());
         });
       }
       setCountriesData(newCountryData);
@@ -88,7 +96,10 @@ const Countries = () => {
 
           <CardsContainer>
             {countriesData.map((country) => (
-              <Link to={`/about/${country.cca3}`} key={country.cca3}>
+              <Link
+                to={`/about/${country.codes?.alpha_3?.length === 3 ? country.codes.alpha_3 : country.uuid}`}
+                key={country.uuid}
+              >
                 <CountryCard country={country} theme={theme} />
               </Link>
             ))}

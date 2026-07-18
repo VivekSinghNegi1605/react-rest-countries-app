@@ -10,6 +10,9 @@ import DetailTitle from "./DetailTitle.jsx";
 import DetailInfo from "./DetailInfo.jsx";
 import CountryName from "./CountryName.jsx";
 
+const TOKEN = import.meta.env.VITE_APP_TOKEN;
+const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+
 function AboutCountry() {
   const { theme } = useContext(ThemeContext);
   const [countryData, setCountryData] = useState([]);
@@ -18,12 +21,29 @@ function AboutCountry() {
 
   async function fetchData(cca3) {
     try {
-      const response = await fetch(
-        `https://restcountries.com/v3.1/alpha/${cca3}`
-      );
+      const endpoint =
+        cca3?.length === 3 ? `codes.alpha_3=${cca3}` : `uuid=${cca3}`;
+
+      const response = await fetch(`${BASE_URL}?${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+        },
+      });
+
       const data = await response.json();
-      setCountryData(data);
-    } catch (error) {}
+
+      if (!response.ok) {
+        throw new Error(
+          data?.errors?.[0]?.message || "Failed to fetch country",
+        );
+      }
+
+      console.log(data.data.objects);
+
+      setCountryData(data.data.objects);
+    } catch (error) {
+      console.error("Country fetch error:", error);
+    }
   }
 
   useEffect(() => {
@@ -41,19 +61,19 @@ function AboutCountry() {
         {countryData && countryData[0] ? (
           <div className="flex flex-wrap sm:flex-nowrap my-20 justify-between gap-x-4">
             <div className=" w-full h-2/3">
-              <img src={countryData[0].flags.png} alt="" className="h-96" />
+              <img src={countryData[0].flag.url_png} alt="" className="h-96" />
             </div>
             <div className="h-full w-3/5">
-              <CountryName className={'text-3xl'}>
-                {countryData[0].name.common}
+              <CountryName className={"text-3xl"}>
+                {countryData[0].names.common}
               </CountryName>
               <div className="flex flex-wrap gap-y-4 justify-between">
                 <div>
                   <DetailContainer>
                     <DetailTitle>Native Name:</DetailTitle>
                     {
-                      countryData[0].name.nativeName[
-                        Object.keys(countryData[0].name.nativeName)[0]
+                      countryData[0].names.native[
+                        Object.keys(countryData[0].names.native)[0]
                       ].common
                     }
                     <DetailInfo></DetailInfo>
@@ -72,13 +92,15 @@ function AboutCountry() {
                   </DetailContainer>
                   <DetailContainer>
                     <DetailTitle>Capital:</DetailTitle>
-                    <DetailInfo>{countryData[0].capital}</DetailInfo>
+                    <DetailInfo>
+                      {countryData[0].capitals?.[0]?.name || "Na"}
+                    </DetailInfo>
                   </DetailContainer>
                 </div>
                 <div>
                   <DetailContainer>
                     <DetailTitle>Top Level Domain:</DetailTitle>
-                    <DetailInfo>{countryData[0].tld}</DetailInfo>
+                    <DetailInfo>{countryData[0].tlds}</DetailInfo>
                   </DetailContainer>
                   <DetailContainer>
                     <DetailTitle>Currencies:</DetailTitle>
@@ -97,7 +119,16 @@ function AboutCountry() {
                   <span className="font-bold">Border Countries:</span>
                   {countryData[0].borders && countryData[0].borders.length
                     ? countryData[0].borders.map((code) => {
-                        return <Button key={code} onClick={()=>{fetchData(code)}}>{code}</Button>;
+                        return (
+                          <Button
+                            key={code}
+                            onClick={() => {
+                              fetchData(code);
+                            }}
+                          >
+                            {code}
+                          </Button>
+                        );
                       })
                     : null}
                 </div>

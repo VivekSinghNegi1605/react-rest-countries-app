@@ -8,12 +8,12 @@ const CountryCard = ({ country }) => {
   return (
     <CardContainer>
       <img
-        src={country.flags.png}
+        src={country.flag.url_png}
         alt=""
         className="w-full h-44 rounded-t-lg"
       />
       <div className="pl-4">
-        <CountryName className={"text-xl"}>{country.name.common}</CountryName>
+        <CountryName className={"text-xl"}>{country.names.common}</CountryName>
         <DetailContainer>
           <DetailTitle> {"Population:"} </DetailTitle>
           <DetailInfo> {country.population} </DetailInfo>
@@ -24,7 +24,7 @@ const CountryCard = ({ country }) => {
         </DetailContainer>
         <DetailContainer>
           <DetailTitle> {"Capital:"} </DetailTitle>
-          <DetailInfo> {country.capital} </DetailInfo>
+          <DetailInfo> {country.capitals?.[0]?.name || "Na"} </DetailInfo>
         </DetailContainer>
       </div>
     </CardContainer>
